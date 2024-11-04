@@ -1,0 +1,7 @@
+# backend ignored files
+
+# environment variables
+backend/.env
+
+# docker volumes
+backend/mariadb

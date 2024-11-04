@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  db:
+    container_name: tasks_server
+    image: mariadb:10.4.32-focal
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mariadb:/var/lib/mysql:rw
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+    restart: always
+  
+  pma:
+    depends_on:
+      - db
+    container_name: phpmyadmin_tasks
+    image: phpmyadmin:5.2.1-apache
+    ports:
+      - "8088:80"
+    environment:
+      - PMA_ARBITRARY=1
+    restart: always
