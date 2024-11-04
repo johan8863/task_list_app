@@ -4,6 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+django = "==4.2"
+tzdata = "*"
+djangorestframework = "*"
+mysqlclient = "*"
+python-decouple = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
