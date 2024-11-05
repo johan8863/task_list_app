@@ -10,7 +10,7 @@ class Task(models.Model):
     content = models.TextField()
     done = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=False)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         """Config object class"""
