@@ -15,7 +15,7 @@ class TaskWriteSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Task
-        fields = ['id', 'name', 'content']
+        fields = ['id', 'name', 'content', 'done']
 
 
 class TaskReadSerializer(serializers.ModelSerializer):
@@ -25,4 +25,4 @@ class TaskReadSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Task
-        fields = ['id', 'name', 'content', 'created', 'updated']
+        fields = ['id', 'name', 'content', 'done', 'created', 'updated']
