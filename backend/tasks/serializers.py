@@ -7,7 +7,7 @@ from rest_framework import serializers
 from .models import Task
 
 
-class TaskReadSerializer(serializers.ModelSerializer):
+class TaskWriteSerializer(serializers.ModelSerializer):
     """
     Class to serialize/deserialize Task objects in POST, PUT
     and DELETE methods, due to the fact that created and updated methods
@@ -18,7 +18,7 @@ class TaskReadSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'content']
 
 
-class TaskWriteSerializer(serializers.ModelSerializer):
+class TaskReadSerializer(serializers.ModelSerializer):
     """
     Class to serialize/deserialize Task objects in GET method,
     all attributes can be retrieved.
