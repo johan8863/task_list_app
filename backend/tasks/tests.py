@@ -179,3 +179,41 @@ class TaskApiTest(APITestCase):
         serialized_tasks = TaskReadSerializer(self.tasks_pending, many=True).data
         # assertions
         self.assertEqual(retrieved_tasks, serialized_tasks)
+    
+    def test_get_non_existent_task(self):
+        """
+        Retrieveing a non-existent task should return a 404 Not Found.
+        """
+        # inputs
+        response = self.client.get(self.detail_url(88))
+        # assertions
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_post_invalid_task(self):
+        """
+        Creating a task with invalid data should return a status code response 400 Bad Request.
+        """
+        data = {
+            'name': '', # cant be blank
+            'content': 'Some post content',
+        }
+        response = self.client.post(self.task_list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_put_invalid_task(self):
+        """
+        Updating a task with invalid data should return a status code response 400 Bad Request.
+        """
+        task = Task.objects.first()
+        data = {
+            'name': '',  # can't be blank, missing required attrs
+        }
+        response = self.client.put(self.detail_url(task.pk), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_delete_non_existent_task(self):
+        """
+        Deleting a non-existent task should return a status code response 404 Not Found.
+        """
+        response = self.client.delete(self.detail_url(63))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
