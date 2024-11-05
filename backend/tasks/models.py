@@ -16,7 +16,7 @@ class Task(models.Model):
         """Config object class"""
 
         # if a task was updated should be moved to the top
-        ordering = ['updated', 'created']
+        ordering = ['-updated', '-created']
 
     def __str__(self) -> str:
         """String method to identify object representation"""
