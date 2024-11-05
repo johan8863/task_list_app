@@ -10,6 +10,7 @@ djangorestframework = "*"
 mysqlclient = "*"
 python-decouple = "*"
 django-cors-headers = "*"
+coverage = "*"
 
 [dev-packages]
 
