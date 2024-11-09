@@ -4,10 +4,11 @@ import { ref, onMounted, computed } from "vue";
 
 // local
 import TaskDetailComponent from "@/components/TaskDetailComponent.vue";
-import { getAllTasks, postTask } from "@/services/task.service";
+import { getAllTasks, postTask, deleteTask } from "@/services/task.service";
 
 // tasks object
 const task = ref({
+  id: Number,
   name: "",
   content: "",
   done: false,
@@ -37,6 +38,11 @@ const createTask = async () => {
   task.value.name = "";
   task.value.content = "";
   task.value.done = false;
+};
+
+const delTask = async (id) => {
+  await deleteTask(id);
+  tasks.value = tasks.value.filter((t) => t.id !== id);
 };
 
 // Life cycle
@@ -75,7 +81,7 @@ onMounted(async () => {
     </div>
     <div>
       <template v-for="task of filteredTasks" :key="task.id">
-        <TaskDetailComponent :task="task" />
+        <TaskDetailComponent :task="task" @on-delete-task="delTask(task.id)" />
       </template>
     </div>
   </div>
