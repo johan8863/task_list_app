@@ -2,6 +2,9 @@
 // vue
 import { ref } from 'vue'
 
+// local
+import TaskDetailComponent from '@/components/TaskDetailComponent.vue'
+
 // tasks object
 const tasks = ref([
   {
@@ -36,8 +39,7 @@ const tasks = ref([
     <h2>Your tasks!</h2>
     <div>
       <template v-for="task of tasks" :key="task.id">
-        <h4>{{ task.name }}</h4>
-        <p>{{ task.content }}</p>
+        <TaskDetailComponent :task="task" />
       </template>
     </div>
   </div>
