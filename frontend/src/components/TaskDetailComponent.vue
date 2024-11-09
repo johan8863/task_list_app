@@ -14,5 +14,6 @@ defineProps({
   <div>
     <h4>{{ task.name }}</h4>
     <p>{{ task.content }}</p>
+    <span>{{ task.done }}</span>
   </div>
 </template>
