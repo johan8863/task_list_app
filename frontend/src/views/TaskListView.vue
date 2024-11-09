@@ -1,37 +1,24 @@
 <script setup>
 // vue
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 // local
 import TaskDetailComponent from '@/components/TaskDetailComponent.vue'
+import { getAllTasks } from '@/services/task.service'
 
 // tasks object
-const tasks = ref([
-  {
-    id: 1,
-    name: 'Kitchen',
-    content: 'Wash the dishes, dry the sink.',
-    done: true,
-  },
-  {
-    id: 2,
-    name: 'Groceries',
-    content: 'Chicken drums.',
-    done: true,
-  },
-  {
-    id: 3,
-    name: 'Painting',
-    content: 'Paint the rooms ASAP.',
-    done: false,
-  },
-  {
-    id: 1,
-    name: 'Accounting',
-    content: 'Transfer 10% to saving credit card.',
-    done: true,
-  },
-])
+const tasks = ref([])
+
+// API consuming
+const listAllTasks = async () => {
+  const response = await getAllTasks()
+  tasks.value = response.data
+}
+
+// Life cycle
+onMounted(async () => {
+  await listAllTasks()
+})
 </script>
 
 <template>
