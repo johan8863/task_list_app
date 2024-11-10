@@ -245,7 +245,10 @@ onMounted(async () => {
 
             <div class="col-auto">
               <!-- buttons -->
-              <button type="submit" class="btn btn-primary btn-sm">Add</button>
+              <button type="submit" class="btn btn-primary btn-sm">
+                Add
+                <i class="bi bi-plus-square"></i>
+              </button>
             </div>
           </form>
           <!-- end create task -->
@@ -325,7 +328,7 @@ onMounted(async () => {
           <!-- end update task -->
         </div>
         <!-- tasks list -->
-        <div>
+        <div v-if="tasks.length > 0">
           <template v-for="(task, index) of filteredTasks" :key="task.id">
             <TaskDetailComponent
               :task="task"
@@ -335,6 +338,9 @@ onMounted(async () => {
             />
           </template>
           <!-- end tasks list -->
+        </div>
+        <div v-else>
+          <p class="lead text-primary">Now yo can start adding tasks.</p>
         </div>
       </div>
       <div v-else>
