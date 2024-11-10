@@ -1,23 +1,28 @@
 <script setup>
 // vue
 
-defineProps({
+const props = defineProps({
   task: {
     id: Number,
     name: String,
     content: String,
     done: Boolean,
   },
+  index: Number,
 });
 
-defineEmits(["onDeleteTask"]);
+const emit = defineEmits(["onDeleteTask", "onUpdateTask"]);
+
+const updateTask = () =>
+  emit("onUpdateTask", { task: props.task, index: props.index });
 </script>
 
 <template>
-  <div>
+  <div @click="updateTask">
     <h4>{{ task.name }}</h4>
     <p>{{ task.content }}</p>
-    <span>{{ task.done }}</span>
+    <span>{{ task.done }}</span> <br />
+    <button type="button" @click.stop="updateTask">update</button>
     <button type="button" @click="$emit('onDeleteTask', task.id)">
       delete
     </button>

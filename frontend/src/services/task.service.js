@@ -14,3 +14,6 @@ export const postTask = async (task) =>
 
 export const deleteTask = async (id) =>
   await apiBase.delete(`${baseTasksDetailUrl}/${id}/`);
+
+export const putTask = async (task) =>
+  await apiBase.put(`${baseTasksDetailUrl}/${task.id}/`, task);
