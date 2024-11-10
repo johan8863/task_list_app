@@ -175,11 +175,12 @@ onMounted(async () => {
 <template>
   <div class="bg-light">
     <div class="container">
-      <h2 class="text-primary">Your tasks!</h2>
+      <h2 class="text-primary mb-4">Your tasks!</h2>
       <div v-if="!taskBackendError.response && !taskBackendError.request">
         <!-- main content -->
+
         <!-- toggling control -->
-        <div class="form-check">
+        <div class="form-check mb-3">
           <input
             @change="displayDoneTasks = !displayDoneTasks"
             type="checkbox"
@@ -191,13 +192,13 @@ onMounted(async () => {
         </div>
         <!-- create task -->
         <div v-if="!updatingTask">
-          <form @submit.prevent="createTask" class="row g-3">
+          <form @submit.prevent="createTask" class="row g-3 mb-4">
             <!-- name control -->
             <div class="col-auto">
               <input
                 type="text"
                 v-model="task.name"
-                placeholder="name"
+                placeholder="task name"
                 class="form-control"
               />
               <!-- backend errors -->
@@ -215,7 +216,7 @@ onMounted(async () => {
               <input
                 type="text"
                 v-model="task.content"
-                placeholder="content"
+                placeholder="task content"
                 class="form-control"
               />
               <!-- backend errors -->
@@ -252,13 +253,13 @@ onMounted(async () => {
 
         <!-- update task -->
         <div v-else="updatingTask">
-          <form class="row g-3">
+          <form class="row g-3 mb-4">
             <!-- name control -->
             <div class="col-auto">
               <input
                 type="text"
                 v-model="updatedTask.name"
-                placeholder="name"
+                placeholder="task name"
                 class="form-control"
               />
               <!-- backend errors -->
@@ -276,7 +277,7 @@ onMounted(async () => {
               <input
                 type="text"
                 v-model="updatedTask.content"
-                placeholder="content"
+                placeholder="task content"
                 class="form-control"
               />
               <!-- backend errors -->
@@ -310,14 +311,14 @@ onMounted(async () => {
                 @click="updateTask"
                 class="btn btn-primary btn-sm me-2"
               >
-                update
+                Update
               </button>
               <button
                 type="button"
                 @click="cancelUpdate"
                 class="btn btn-secondary btn-sm"
               >
-                cancel
+                Cancel
               </button>
             </div>
           </form>
@@ -338,10 +339,12 @@ onMounted(async () => {
       </div>
       <div v-else>
         <div v-if="taskBackendError.request">
-          <span>{{ taskBackendError.request }}</span>
+          <span class="alert alert-danger">{{ taskBackendError.request }}</span>
         </div>
         <div v-if="taskBackendError.response">
-          <span>{{ taskBackendError.response }}</span>
+          <span class="alert alert-danger">{{
+            taskBackendError.response
+          }}</span>
         </div>
       </div>
     </div>
