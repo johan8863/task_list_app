@@ -40,11 +40,24 @@ const startUpdate = (payload) => {
 };
 
 const updateTask = async () => {
-  const searchIndex = tasks.value.findIndex(() => updatedTaskIndex);
+  const searchIndex = updatedTaskIndex.value;
+
+  if (searchIndex === -1) {
+    console.error("No valid task selected");
+    return;
+  }
+
   const response = await putTask(updatedTask.value);
   const savedTask = response.data;
-  tasks.value.splice(searchIndex, 1, savedTask);
+
+  // updated tasks should be moved to the top, to highlight importance
+  tasks.value.splice(searchIndex, 1);
+  tasks.value.unshift(savedTask);
+
+  // reset components properties values to be ready
+  // to get new tasks updating
   updatingTask.value = false;
+  updatedTaskIndex.value = -1;
   updatedTask.value = {};
 };
 

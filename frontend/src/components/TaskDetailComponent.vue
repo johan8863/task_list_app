@@ -14,15 +14,18 @@ const props = defineProps({
 const emit = defineEmits(["onDeleteTask", "onUpdateTask"]);
 
 const updateTask = () =>
-  emit("onUpdateTask", { task: props.task, index: props.index });
+  emit("onUpdateTask", {
+    task: props.task,
+    index: props.index,
+  });
 </script>
 
 <template>
-  <div @click="updateTask">
+  <div>
     <h4>{{ task.name }}</h4>
     <p>{{ task.content }}</p>
     <span>{{ task.done }}</span> <br />
-    <button type="button" @click.stop="updateTask">update</button>
+    <button type="button" @click="updateTask">update</button>
     <button type="button" @click="$emit('onDeleteTask', task.id)">
       delete
     </button>
