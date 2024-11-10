@@ -50,8 +50,9 @@ const rules = {
   },
 };
 
-// vuelidate object
+// vuelidate objects
 const v$ = useVuelidate(rules, task);
+const vu$ = useVuelidate(rules, updatedTask);
 
 // functions
 const filteredTasks = computed(() => {
@@ -63,6 +64,7 @@ const filteredTasks = computed(() => {
 const startUpdate = (payload) => {
   // in case the user decides to change from updating or creating and
   // errors have already been trigered, they must be cleared
+  cancelCreate();
   clearTaskBackendErrors();
   updatedTask.value = { ...payload.task };
   updatedTaskIndex.value = payload.index;
@@ -72,9 +74,12 @@ const startUpdate = (payload) => {
 const cancelUpdate = () => {
   // in case the user decides to change from updating or creating and
   // errors have already been trigered, they must be cleared
+  vu$.value.$reset();
   clearTaskBackendErrors();
   updatingTask.value = false;
   updatedTask.value = {};
+
+  cancelCreate();
 };
 
 const clearTaskBackendErrors = () => {
@@ -142,7 +147,7 @@ const createTask = async () => {
 
 const updateTask = async () => {
   try {
-    if (await v$.value.$validate()) {
+    if (await vu$.value.$validate()) {
       // in case the user decides to change from updating or creating and
       // errors have already been trigered, they must be cleared
       clearTaskBackendErrors();
@@ -320,6 +325,14 @@ onMounted(async () => {
                 placeholder="task name"
                 class="form-control"
               />
+              <!-- frontend validations -->
+              <p
+                class="form-text text-danger"
+                v-for="error in vu$.name.$errors"
+                :key="error.$uid"
+              >
+                {{ error.$message }}
+              </p>
               <!-- backend errors -->
               <div v-if="taskBackendError.name" class="form-text text-danger">
                 <span
@@ -338,6 +351,13 @@ onMounted(async () => {
                 placeholder="task content"
                 class="form-control"
               />
+              <p
+                class="form-text text-danger"
+                v-for="error in vu$.content.$errors"
+                :key="error.$uid"
+              >
+                {{ error.$message }}
+              </p>
               <!-- backend errors -->
               <div
                 v-if="taskBackendError.content"
