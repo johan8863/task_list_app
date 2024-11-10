@@ -2,6 +2,10 @@
 // vue
 import { ref, onMounted, computed } from "vue";
 
+// third
+import { useVuelidate } from "@vuelidate/core";
+import { required, helpers } from "@vuelidate/validators";
+
 // local
 import TaskDetailComponent from "@/components/TaskDetailComponent.vue";
 import {
@@ -36,6 +40,19 @@ const updatingTask = ref(false);
 const updatedTask = ref({});
 const updatedTaskIndex = ref(-1);
 
+// vuelidate rules
+const rules = {
+  name: {
+    required: helpers.withMessage("The name is required.", required),
+  },
+  content: {
+    required: helpers.withMessage("The content is required.", required),
+  },
+};
+
+// vuelidate object
+const v$ = useVuelidate(rules, task);
+
 // functions
 const filteredTasks = computed(() => {
   return displayDoneTasks.value
@@ -69,6 +86,15 @@ const clearTaskBackendErrors = () => {
   taskBackendError.value.request = "";
 };
 
+const cancelCreate = () => {
+  // in case the user decides to change from updating or creating and
+  // errors have already been trigered, they must be cleared
+  clearTaskBackendErrors();
+  task.value.name = "";
+  task.value.content = "";
+  v$.value.$reset();
+};
+
 // API consuming
 const listAllTasks = async () => {
   try {
@@ -87,19 +113,22 @@ const listAllTasks = async () => {
 
 const createTask = async () => {
   try {
-    // in case the user decides to change from updating or creating and
-    // errors have already been trigered, they must be cleared
-    clearTaskBackendErrors();
-    const response = await postTask(task.value);
-    const newTask = response.data;
+    if (await v$.value.$validate()) {
+      // in case the user decides to change from updating or creating and
+      // errors have already been trigered, they must be cleared
+      clearTaskBackendErrors();
 
-    tasks.value.unshift(newTask);
+      const response = await postTask(task.value);
+      const newTask = response.data;
 
-    task.value.name = "";
-    task.value.content = "";
-    task.value.done = false;
+      tasks.value.unshift(newTask);
 
-    clearTaskBackendErrors();
+      task.value.name = "";
+      task.value.content = "";
+      task.value.done = false;
+
+      clearTaskBackendErrors();
+    }
   } catch (error) {
     if (error.response) {
       taskBackendError.value = error.response.data;
@@ -113,30 +142,32 @@ const createTask = async () => {
 
 const updateTask = async () => {
   try {
-    // in case the user decides to change from updating or creating and
-    // errors have already been trigered, they must be cleared
-    clearTaskBackendErrors();
-    const searchIndex = updatedTaskIndex.value;
+    if (await v$.value.$validate()) {
+      // in case the user decides to change from updating or creating and
+      // errors have already been trigered, they must be cleared
+      clearTaskBackendErrors();
+      const searchIndex = updatedTaskIndex.value;
 
-    if (searchIndex === -1) {
-      console.error("No valid task selected");
-      return;
+      if (searchIndex === -1) {
+        console.error("No valid task selected");
+        return;
+      }
+
+      const response = await putTask(updatedTask.value);
+      const savedTask = response.data;
+
+      clearTaskBackendErrors();
+
+      // updated tasks should be moved to the top, to highlight importance
+      tasks.value.splice(searchIndex, 1);
+      tasks.value.unshift(savedTask);
+
+      // reset components properties values to be ready
+      // to get new tasks updating
+      updatingTask.value = false;
+      updatedTaskIndex.value = -1;
+      updatedTask.value = {};
     }
-
-    const response = await putTask(updatedTask.value);
-    const savedTask = response.data;
-
-    clearTaskBackendErrors();
-
-    // updated tasks should be moved to the top, to highlight importance
-    tasks.value.splice(searchIndex, 1);
-    tasks.value.unshift(savedTask);
-
-    // reset components properties values to be ready
-    // to get new tasks updating
-    updatingTask.value = false;
-    updatedTaskIndex.value = -1;
-    updatedTask.value = {};
   } catch (error) {
     if (error.response.data) {
       taskBackendError.value = error.response.data;
@@ -201,6 +232,14 @@ onMounted(async () => {
                 placeholder="task name"
                 class="form-control"
               />
+              <!-- frontend validations -->
+              <p
+                class="form-text text-danger"
+                v-for="error in v$.name.$errors"
+                :key="error.$uid"
+              >
+                {{ error.$message }}
+              </p>
               <!-- backend errors -->
               <div v-if="taskBackendError.name" class="form-text text-danger">
                 <span
@@ -219,6 +258,14 @@ onMounted(async () => {
                 placeholder="task content"
                 class="form-control"
               />
+              <!-- frontend validations -->
+              <p
+                class="form-text text-danger"
+                v-for="error in v$.content.$errors"
+                :key="error.$uid"
+              >
+                {{ error.$message }}
+              </p>
               <!-- backend errors -->
               <div
                 v-if="taskBackendError.content"
@@ -245,9 +292,17 @@ onMounted(async () => {
 
             <div class="col-auto">
               <!-- buttons -->
-              <button type="submit" class="btn btn-primary btn-sm">
+              <button type="submit" class="btn btn-primary btn-sm me-2">
                 Add
                 <i class="bi bi-plus-square"></i>
+              </button>
+              <button
+                @click="cancelCreate"
+                type="button"
+                class="btn btn-secondary btn-sm"
+              >
+                Cancel
+                <i class="bi bi-x-square"></i>
               </button>
             </div>
           </form>
