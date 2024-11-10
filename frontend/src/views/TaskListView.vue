@@ -44,12 +44,18 @@ const filteredTasks = computed(() => {
 });
 
 const startUpdate = (payload) => {
+  // in case the user decides to change from updating or creating and
+  // errors have already been trigered, they must be cleared
+  clearTaskBackendErrors();
   updatedTask.value = { ...payload.task };
   updatedTaskIndex.value = payload.index;
   updatingTask.value = true;
 };
 
 const cancelUpdate = () => {
+  // in case the user decides to change from updating or creating and
+  // errors have already been trigered, they must be cleared
+  clearTaskBackendErrors();
   updatingTask.value = false;
   updatedTask.value = {};
 };
@@ -81,6 +87,9 @@ const listAllTasks = async () => {
 
 const createTask = async () => {
   try {
+    // in case the user decides to change from updating or creating and
+    // errors have already been trigered, they must be cleared
+    clearTaskBackendErrors();
     const response = await postTask(task.value);
     const newTask = response.data;
 
@@ -104,6 +113,9 @@ const createTask = async () => {
 
 const updateTask = async () => {
   try {
+    // in case the user decides to change from updating or creating and
+    // errors have already been trigered, they must be cleared
+    clearTaskBackendErrors();
     const searchIndex = updatedTaskIndex.value;
 
     if (searchIndex === -1) {
@@ -161,80 +173,176 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
-    <h2>Your tasks!</h2>
-    <div v-if="!taskBackendError.response && !taskBackendError.request">
-      <!-- main content -->
-      <!-- toggling control -->
-      <div>
-        <input
-          @change="displayDoneTasks = !displayDoneTasks"
-          type="checkbox"
-          name=""
-          id="displayDone"
-        />
-        <label for="displayDone">Show done.</label>
-      </div>
-      <!-- create task -->
-      <div v-if="!updatingTask">
-        <form @submit.prevent="createTask">
-          <!-- name control -->
-          <input type="text" v-model="task.name" placeholder="name" />
-          <span v-if="taskBackendError.name">{{ taskBackendError.name }}</span>
-
-          <!-- content control -->
-          <input type="text" v-model="task.content" placeholder="content" />
-          <span v-if="taskBackendError.content">{{
-            taskBackendError.content
-          }}</span>
-
-          <!-- done control -->
-          <input type="checkbox" v-model="task.done" /> done
-
-          <!-- buttons -->
-          <button type="submit">Add</button>
-        </form>
-      </div>
-      <!-- update task -->
-      <div v-else="updatingTask">
-        <!-- name control -->
-        <input type="text" v-model="updatedTask.name" placeholder="name" />
-        <span v-if="taskBackendError.name">{{ taskBackendError.name }}</span>
-
-        <!-- content control -->
-        <input
-          type="text"
-          v-model="updatedTask.content"
-          placeholder="content"
-        />
-        <span v-if="taskBackendError.content">{{
-          taskBackendError.content
-        }}</span>
-
-        <!-- done control -->
-        <input type="checkbox" v-model="updatedTask.done" /> done
-
-        <!-- buttons -->
-        <button type="button" @click="updateTask">update</button>
-        <button type="button" @click="cancelUpdate">cancel</button>
-      </div>
-      <div>
-        <template v-for="(task, index) of filteredTasks" :key="task.id">
-          <TaskDetailComponent
-            :task="task"
-            :index="index"
-            @on-delete-task="delTask(task.id)"
-            @on-update-task="startUpdate"
+  <div class="bg-light">
+    <div class="container">
+      <h2 class="text-primary">Your tasks!</h2>
+      <div v-if="!taskBackendError.response && !taskBackendError.request">
+        <!-- main content -->
+        <!-- toggling control -->
+        <div class="form-check">
+          <input
+            @change="displayDoneTasks = !displayDoneTasks"
+            type="checkbox"
+            name=""
+            id="displayDone"
+            class="form-check-input"
           />
-        </template>
+          <label class="form-check-label" for="displayDone">Show done.</label>
+        </div>
+        <!-- create task -->
+        <div v-if="!updatingTask">
+          <form @submit.prevent="createTask" class="row g-3">
+            <!-- name control -->
+            <div class="col-auto">
+              <input
+                type="text"
+                v-model="task.name"
+                placeholder="name"
+                class="form-control"
+              />
+              <!-- backend errors -->
+              <div v-if="taskBackendError.name" class="form-text text-danger">
+                <span
+                  v-for="(error, index) in taskBackendError.name"
+                  :key="index"
+                  >{{ error }}</span
+                >
+              </div>
+            </div>
+
+            <!-- content control -->
+            <div class="col-auto">
+              <input
+                type="text"
+                v-model="task.content"
+                placeholder="content"
+                class="form-control"
+              />
+              <!-- backend errors -->
+              <div
+                v-if="taskBackendError.content"
+                class="form-text text-danger"
+              >
+                <span
+                  v-for="(error, index) in taskBackendError.content"
+                  :key="index"
+                  >{{ error }}</span
+                >
+              </div>
+            </div>
+
+            <!-- done control -->
+            <div class="col-auto form-check">
+              <input
+                type="checkbox"
+                v-model="task.done"
+                class="form-check-input"
+                id="done"
+              />
+              <label for="done" class="form-check-lab">done</label>
+            </div>
+
+            <div class="col-auto">
+              <!-- buttons -->
+              <button type="submit" class="btn btn-primary btn-sm">Add</button>
+            </div>
+          </form>
+          <!-- end create task -->
+        </div>
+
+        <!-- update task -->
+        <div v-else="updatingTask">
+          <form class="row g-3">
+            <!-- name control -->
+            <div class="col-auto">
+              <input
+                type="text"
+                v-model="updatedTask.name"
+                placeholder="name"
+                class="form-control"
+              />
+              <!-- backend errors -->
+              <div v-if="taskBackendError.name" class="form-text text-danger">
+                <span
+                  v-for="(error, index) in taskBackendError.name"
+                  :key="index"
+                  >{{ error }}</span
+                >
+              </div>
+            </div>
+
+            <!-- content control -->
+            <div class="col-auto">
+              <input
+                type="text"
+                v-model="updatedTask.content"
+                placeholder="content"
+                class="form-control"
+              />
+              <!-- backend errors -->
+              <div
+                v-if="taskBackendError.content"
+                class="form-text text-danger"
+              >
+                <span
+                  v-for="(error, index) in taskBackendError.content"
+                  :key="index"
+                  >{{ error }}</span
+                >
+              </div>
+            </div>
+
+            <!-- done control -->
+            <div class="col-auto form-check">
+              <input
+                type="checkbox"
+                v-model="updatedTask.done"
+                class="form-check-input"
+                id="done"
+              />
+              <label for="done" class="form-check-label">done</label>
+            </div>
+
+            <!-- buttons -->
+            <div class="col-auto">
+              <button
+                type="button"
+                @click="updateTask"
+                class="btn btn-primary btn-sm me-2"
+              >
+                update
+              </button>
+              <button
+                type="button"
+                @click="cancelUpdate"
+                class="btn btn-secondary btn-sm"
+              >
+                cancel
+              </button>
+            </div>
+          </form>
+          <!-- end update task -->
+        </div>
+        <!-- tasks list -->
+        <div>
+          <template v-for="(task, index) of filteredTasks" :key="task.id">
+            <TaskDetailComponent
+              :task="task"
+              :index="index"
+              @on-delete-task="delTask(task.id)"
+              @on-update-task="startUpdate"
+            />
+          </template>
+          <!-- end tasks list -->
+        </div>
       </div>
-    </div>
-    <div v-else>
-      <div v-if="taskBackendError.request">
-        <span>{{ taskBackendError.request }}</span>
-      </div>
-      <div v-if="taskBackendError.response">
-        <span>{{ taskBackendError.response }}</span>
+      <div v-else>
+        <div v-if="taskBackendError.request">
+          <span>{{ taskBackendError.request }}</span>
+        </div>
+        <div v-if="taskBackendError.response">
+          <span>{{ taskBackendError.response }}</span>
+        </div>
       </div>
     </div>
   </div>
